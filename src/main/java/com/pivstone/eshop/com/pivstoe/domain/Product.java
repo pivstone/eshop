@@ -2,7 +2,10 @@ package com.pivstone.eshop.com.pivstoe.domain;
 
 import lombok.Data;
 
-import javax.persistence.Entity;
+import javax.persistence.*;
+import java.util.Currency;
+import java.util.List;
+import java.util.UUID;
 
 /**
  * Mail: pivstone@gmail.com <br>
@@ -11,5 +14,12 @@ import javax.persistence.Entity;
 @Data
 @Entity
 public class Product {
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private UUID id;
+    private String name;
+    @OneToMany
+    private List<Category> categories;
+    private Currency price;
 
 }
