@@ -1,12 +1,18 @@
 package com.pivstone.eshop.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.pivstone.eshop.auth.AdminAuthority;
 import lombok.Data;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -15,11 +21,43 @@ import java.util.UUID;
  */
 @Data
 @Entity
-public class Account {
+public class Account implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
     private String username;
+    // password should be encrypted, but it just a demo
     @JsonIgnore
     private String password;
+
+    private Boolean admin;
+    private Boolean enabled = Boolean.TRUE;
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        Set<GrantedAuthority> set = new HashSet<>();
+        set.add(new AdminAuthority());
+        return set;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return false;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return false;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return false;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return this.enabled;
+    }
+
 }

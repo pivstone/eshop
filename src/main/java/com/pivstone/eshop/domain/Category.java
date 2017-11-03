@@ -19,7 +19,7 @@ public class Category {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
     private String name;
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany
     @JsonIgnore
     private Set<Product> product = new HashSet<>();
 }

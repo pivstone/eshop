@@ -9,11 +9,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.net.URI;
 import java.util.UUID;
 
 /**
@@ -33,7 +33,7 @@ public class CategoryController {
     }
 
     @RequestMapping(value = "/", method = RequestMethod.GET)
-    private Page<Category> index(@PageableDefault(value = 15, sort = {"id"}, direction = Sort.Direction.DESC)
+    private Page<Category> index(@PageableDefault(value = 15, sort = {"name"}, direction = Sort.Direction.DESC)
                                  Pageable pageable) {
 
         return this.categoryRepo.findAll(pageable);
@@ -44,12 +44,32 @@ public class CategoryController {
         return categoryRepo.findOne(id);
     }
 
+    @RequestMapping(value = "/", method = RequestMethod.POST)
+    private ResponseEntity<Category> create(@RequestBody Category category) {
+        Category result = this.categoryRepo.save(category);
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest().path("/{id}")
+                .buildAndExpand(result.getId()).toUri();
+        return ResponseEntity.created(location).body(result);
+    }
 
     @RequestMapping(value = "/{id}/products", method = RequestMethod.GET)
-    private Page<Product> index(@PathVariable UUID id,
-                                @PageableDefault(value = 15, sort = {"id"}, direction = Sort.Direction.DESC)
-                                Pageable pageable) {
-        return this.productRepo.findByCategoryId(id, pageable);
+    private Page<Product> products(@PathVariable UUID id,
+                                   @PageableDefault(value = 15, sort = {"id"}, direction = Sort.Direction.DESC)
+                                   Pageable pageable) {
+        return this.productRepo.findByCategory_Id(id, pageable);
+    }
+
+    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
+    private ResponseEntity<Category> destroy(@PathVariable UUID id) {
+        this.categoryRepo.delete(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
+    private Category update(@PathVariable UUID id, @RequestBody Category category) {
+        category.setId(id);
+        return this.categoryRepo.save(category);
     }
 
 }

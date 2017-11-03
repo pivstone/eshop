@@ -2,20 +2,20 @@ package com.pivstone.eshop.repo;
 
 import com.pivstone.eshop.domain.Category;
 import com.pivstone.eshop.domain.Product;
+import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.junit.Before;
-import org.junit.Test;
+
 import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Mail: pivstone@gmail.com <br>
@@ -24,38 +24,44 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(SpringRunner.class)
 @DataJpaTest
 public class ProductRepoTest {
-    @Autowired
-    private TestEntityManager entityManager;
 
     @Autowired
     private ProductRepo productRepo;
+    @Autowired
+    private CategoryRepo categoryRepo;
 
     private UUID categoryId;
+    private Category category;
+
     @Before
     public void setUp() {
-        Category color = new Category();
-        color.setName("white");
+        category = new Category();
+        category.setName("white");
         Category band = new Category();
         band.setName("Nike~");
-        band = entityManager.persist(band);
-        color = entityManager.persist(color);
-        this.categoryId = band.getId();
+        band = categoryRepo.save(band);
+        category = categoryRepo.save(category);
+        this.categoryId = category.getId();
+
+        Category temp = new Category();
+        temp.setId(category.getId());
         Product shoes = new Product();
-        Set<Category> categories = new HashSet<>();
-        categories.add(band);
-        categories.add(color);
-        shoes.setCategory(categories);
+        shoes.getCategory().add(temp);
+        Category temp2 = new Category();
+        temp2.setId(band.getId());
+        shoes.getCategory().add(temp2);
+
         shoes.setName("Fizzy");
         BigDecimal price = new BigDecimal(10.2);
         shoes.setPrice(price);
 
-        entityManager.persist(shoes);
+        shoes = productRepo.save(shoes);
     }
 
     @Test
     public void testFindProductByCategoryId() throws Exception {
-        Collection<Product> products = productRepo.findByCategoryId(this.categoryId);
-        assertThat(products.size() == 1);
+        Collection<Product> products = productRepo.findByCategory_Id(this.categoryId);
+        assertEquals(products.size(), 1);
 
     }
 }
