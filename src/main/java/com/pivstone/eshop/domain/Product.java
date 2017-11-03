@@ -3,8 +3,9 @@ package com.pivstone.eshop.domain;
 import lombok.Data;
 
 import javax.persistence.*;
-import java.util.Currency;
-import java.util.List;
+import java.math.BigDecimal;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -18,8 +19,9 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
     private String name;
-    @OneToMany
-    private List<Category> categories;
-    private Currency price;
+
+    @ManyToMany(mappedBy = "product")
+    private Set<Category> category = new HashSet<>();
+    private BigDecimal price;
 
 }
