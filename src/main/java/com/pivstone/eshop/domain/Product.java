@@ -24,7 +24,6 @@ public class Product {
     private UUID id;
     private String name;
 
-    @JsonIgnore
     @ManyToMany
     private Set<Category> category = new HashSet<>();
     private BigDecimal price;

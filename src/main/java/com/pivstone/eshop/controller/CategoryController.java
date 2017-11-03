@@ -32,19 +32,19 @@ public class CategoryController {
         this.productRepo = productRepo;
     }
 
-    @RequestMapping(value = "/", method = RequestMethod.GET)
+    @GetMapping("/")
     private Page<Category> index(@PageableDefault(value = 15, sort = {"name"}, direction = Sort.Direction.DESC)
                                  Pageable pageable) {
 
         return this.categoryRepo.findAll(pageable);
     }
 
-    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
+    @GetMapping("/{id}")
     private Category show(@PathVariable UUID id) {
         return categoryRepo.findOne(id);
     }
 
-    @RequestMapping(value = "/", method = RequestMethod.POST)
+    @PostMapping
     private ResponseEntity<Category> create(@RequestBody Category category) {
         Category result = this.categoryRepo.save(category);
         URI location = ServletUriComponentsBuilder
@@ -53,20 +53,20 @@ public class CategoryController {
         return ResponseEntity.created(location).body(result);
     }
 
-    @RequestMapping(value = "/{id}/products", method = RequestMethod.GET)
+    @GetMapping("/{id}/products")
     private Page<Product> products(@PathVariable UUID id,
                                    @PageableDefault(value = 15, sort = {"id"}, direction = Sort.Direction.DESC)
                                    Pageable pageable) {
         return this.productRepo.findByCategory_Id(id, pageable);
     }
 
-    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
+    @DeleteMapping("/{id}")
     private ResponseEntity<Category> destroy(@PathVariable UUID id) {
         this.categoryRepo.delete(id);
         return ResponseEntity.noContent().build();
     }
 
-    @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
+    @PutMapping("/{id}")
     private Category update(@PathVariable UUID id, @RequestBody Category category) {
         category.setId(id);
         return this.categoryRepo.save(category);

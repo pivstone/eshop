@@ -40,12 +40,12 @@ public class ProductController {
 
     private static final Currency CURRENCY = Currency.getInstance("EUR");
 
-    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
+    @GetMapping("/{id}")
     private Product show(@PathVariable UUID id) {
         return repo.findOne(id);
     }
 
-    @RequestMapping(value = "/", method = RequestMethod.GET)
+    @GetMapping("/")
     private Page<Product> index(@PageableDefault(value = 15, sort = {"name"}, direction = Sort.Direction.DESC)
                                 Pageable pageable) {
         return this.repo.findAll(pageable);
@@ -57,7 +57,7 @@ public class ProductController {
      * @param product product
      * @return 201
      */
-    @RequestMapping(value = "/", method = RequestMethod.POST)
+    @PostMapping("/")
     private ResponseEntity<Product> create(@RequestBody Product product) {
         product = exchange(product);
         for (UUID categoryId : product.getCategoriesIdList()) {
@@ -77,7 +77,7 @@ public class ProductController {
      * @param id product ID
      * @return 204
      */
-    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
+    @DeleteMapping("/{id}")
     private ResponseEntity<Product> destroy(@PathVariable UUID id) {
         this.repo.delete(id);
         return ResponseEntity.noContent().build();
@@ -90,7 +90,7 @@ public class ProductController {
      * @param product
      * @return
      */
-    @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
+    @PutMapping("/{id}")
     private Product update(@PathVariable UUID id, @RequestBody Product product) {
         product.setId(id);
         product = exchange(product);

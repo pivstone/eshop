@@ -1,10 +1,13 @@
 package com.pivstone.eshop.auth;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
 
 /**
  * Mail: pivstone@gmail.com <br>
@@ -20,17 +23,27 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .csrf().disable()
                 .authorizeRequests()
                 .antMatchers(HttpMethod.GET, "/**")
-                .permitAll();
-//                .and()
-//                .authorizeRequests()
-//                .antMatchers(HttpMethod.POST, "/products").hasRole("ADMIN")
-//                .antMatchers(HttpMethod.PUT, "/products/**").hasRole("ADMIN")
-//                .antMatchers(HttpMethod.PATCH, "/products/**").hasRole("ADMIN")
-//                .antMatchers(HttpMethod.DELETE, "/products/**").hasRole("ADMIN")
-//                .antMatchers(HttpMethod.POST, "/categories").hasRole("ADMIN")
-//                .antMatchers(HttpMethod.PUT, "/categories/**").hasRole("ADMIN")
-//                .antMatchers(HttpMethod.PATCH, "/categories/**").hasRole("ADMIN")
-//                .antMatchers(HttpMethod.DELETE, "/categories/**").hasRole("ADMIN");
+                .permitAll()
+                .and()
+                .authorizeRequests()
+                .antMatchers(HttpMethod.POST, "/products").hasRole("ADMIN")
+                .antMatchers(HttpMethod.PUT, "/products/**").hasRole("ADMIN")
+                .antMatchers(HttpMethod.PATCH, "/products/**").hasRole("ADMIN")
+                .antMatchers(HttpMethod.DELETE, "/products/**").hasRole("ADMIN")
+                .antMatchers(HttpMethod.POST, "/categories").hasRole("ADMIN")
+                .antMatchers(HttpMethod.PUT, "/categories/**").hasRole("ADMIN")
+                .antMatchers(HttpMethod.PATCH, "/categories/**").hasRole("ADMIN")
+                .antMatchers(HttpMethod.DELETE, "/categories/**").hasRole("ADMIN")
+                .and()
+                .httpBasic();
+
+    }
+
+    @Autowired
+    public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+        auth
+                .inMemoryAuthentication()
+                .withUser("user").password("password").roles("ADMIN");
     }
 
 }
