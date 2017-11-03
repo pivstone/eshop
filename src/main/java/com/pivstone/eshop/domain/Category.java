@@ -1,4 +1,4 @@
-package com.pivstone.eshop.com.pivstoe.domain;
+package com.pivstone.eshop.domain;
 
 import lombok.Data;
 
