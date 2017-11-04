@@ -67,7 +67,7 @@ public class CategoryController {
     }
 
     @GetMapping("/{id}/products")
-    private Page<Product> products(@PathVariable UUID id,
+    public Page<Product> products(@PathVariable UUID id,
                                    @PageableDefault(value = 15, sort = {"id"}, direction = Sort.Direction.DESC)
                                    Pageable pageable) {
         return this.productRepo.findByCategory_Id(id, pageable);
