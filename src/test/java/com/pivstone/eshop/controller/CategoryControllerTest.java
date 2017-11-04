@@ -1,5 +1,6 @@
 package com.pivstone.eshop.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pivstone.eshop.EshopApplication;
 import com.pivstone.eshop.model.Category;
 import com.pivstone.eshop.jpa.CategoryRepo;
@@ -51,19 +52,6 @@ public class CategoryControllerTest {
     private MediaType contentType = new MediaType(MediaType.APPLICATION_JSON.getType(),
             MediaType.APPLICATION_JSON.getSubtype(),
             Charset.forName("utf8"));
-    private HttpMessageConverter messageConverter;
-
-    @Autowired
-    void setConverters(HttpMessageConverter<?>[] converters) {
-
-        this.messageConverter = Arrays.asList(converters).stream()
-                .filter(hmc -> hmc instanceof MappingJackson2HttpMessageConverter)
-                .findAny()
-                .orElse(null);
-
-        assertNotNull("the JSON message converter must not be null",
-                this.messageConverter);
-    }
 
     @Before
     public void setUp() throws Exception {
@@ -124,11 +112,7 @@ public class CategoryControllerTest {
         Category category = new Category();
         category.setName("test2");
         category = this.categoryRepo.save(category);
-        StringBuilder url = new StringBuilder();
-        url.append("/categories/");
-        url.append(category.getId());
-        url.append("/");
-        this.mvc.perform(delete(url.toString())
+        this.mvc.perform(delete("/categories/" + category.getId() + "/")
                 .with(csrf())).
                 andExpect(status().isNoContent());
         assertFalse(this.categoryRepo.exists(category.getId()));
@@ -143,11 +127,7 @@ public class CategoryControllerTest {
         category = this.categoryRepo.save(category);
         category.setName("test3");
         String categoryJson = json(category);
-        StringBuilder url = new StringBuilder();
-        url.append("/categories/");
-        url.append(category.getId());
-        url.append("/");
-        this.mvc.perform(put(url.toString())
+        this.mvc.perform(put("/categories/" + category.getId() + "/")
                 .contentType(contentType)
                 .content(categoryJson)
                 .with(csrf()))
@@ -157,9 +137,8 @@ public class CategoryControllerTest {
     }
 
     protected String json(Object o) throws IOException {
-        MockHttpOutputMessage mockHttpOutputMessage = new MockHttpOutputMessage();
-        this.messageConverter.write(o, MediaType.APPLICATION_JSON, mockHttpOutputMessage);
-        return mockHttpOutputMessage.getBodyAsString();
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.writeValueAsString(o);
     }
 
 }

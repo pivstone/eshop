@@ -1,5 +1,6 @@
 package com.pivstone.eshop.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pivstone.eshop.EshopApplication;
 import com.pivstone.eshop.model.Product;
 import com.pivstone.eshop.jpa.ProductRepo;
@@ -44,24 +45,12 @@ public class ProductControllerTest {
     private MediaType contentType = new MediaType(MediaType.APPLICATION_JSON.getType(),
             MediaType.APPLICATION_JSON.getSubtype(),
             Charset.forName("utf8"));
-    private HttpMessageConverter messageConverter;
 
     @Autowired
     private ProductRepo productRepo;
     private Product bike;
     private Product car;
 
-    @Autowired
-    void setConverters(HttpMessageConverter<?>[] converters) {
-
-        this.messageConverter = Arrays.asList(converters).stream()
-                .filter(hmc -> hmc instanceof MappingJackson2HttpMessageConverter)
-                .findAny()
-                .orElse(null);
-
-        assertNotNull("the JSON message converter must not be null",
-                this.messageConverter);
-    }
 
     @Before
     public void setUp() throws Exception {
@@ -77,11 +66,7 @@ public class ProductControllerTest {
 
     @Test
     public void testShowProduct() throws Exception {
-        StringBuilder url = new StringBuilder();
-        url.append("/products/");
-        url.append(this.bike.getId());
-        url.append("/");
-        this.mvc.perform(get(url.toString()))
+        this.mvc.perform(get("/products/" + this.bike.getId() + "/"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(contentType))
                 .andExpect(jsonPath("$.id", is(this.bike.getId().toString())))
@@ -122,11 +107,7 @@ public class ProductControllerTest {
         Product box = new Product();
         box.setName("test2");
         box = this.productRepo.save(box);
-        StringBuilder url = new StringBuilder();
-        url.append("/products/");
-        url.append(box.getId());
-        url.append("/");
-        this.mvc.perform(delete(url.toString())
+        this.mvc.perform(delete("/products/" + box.getId() + "/")
                 .with(csrf()))
                 .andExpect(status().isNoContent());
         assertFalse(this.productRepo.exists(box.getId()));
@@ -141,11 +122,7 @@ public class ProductControllerTest {
         product = this.productRepo.save(product);
         product.setName("test3");
         String productJson = json(product);
-        StringBuilder url = new StringBuilder();
-        url.append("/products/");
-        url.append(product.getId());
-        url.append("/");
-        this.mvc.perform(put(url.toString())
+        this.mvc.perform(put("/products/" + product.getId() + "/")
                 .contentType(contentType)
                 .content(productJson)
                 .with(csrf()))
@@ -156,8 +133,7 @@ public class ProductControllerTest {
 
 
     protected String json(Object o) throws IOException {
-        MockHttpOutputMessage mockHttpOutputMessage = new MockHttpOutputMessage();
-        this.messageConverter.write(o, MediaType.APPLICATION_JSON, mockHttpOutputMessage);
-        return mockHttpOutputMessage.getBodyAsString();
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.writeValueAsString(o);
     }
 }

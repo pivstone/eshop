@@ -30,12 +30,11 @@ public class ProductRepoTest {
 
 
     private UUID categoryId;
-    private Category category;
 
 
     @Before
     public void setUp() {
-        category = new Category();
+        Category category = new Category();
         category.setName("white");
         Category band = new Category();
         band.setName("Nike~");
