@@ -1,17 +1,18 @@
 package com.pivstone.eshop;
 
-import com.pivstone.eshop.model.Account;
-import com.pivstone.eshop.model.Category;
-import com.pivstone.eshop.model.Product;
 import com.pivstone.eshop.jpa.AccountRepo;
 import com.pivstone.eshop.jpa.CategoryRepo;
 import com.pivstone.eshop.jpa.ProductRepo;
+import com.pivstone.eshop.model.Account;
+import com.pivstone.eshop.model.Category;
+import com.pivstone.eshop.model.Product;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.crypto.password.StandardPasswordEncoder;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -26,6 +27,11 @@ public class EshopApplication {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Bean
+    public PasswordEncoder encoder() {
+        return new StandardPasswordEncoder();
+    }
 
     @Bean
     CommandLineRunner init(ProductRepo productRepo, CategoryRepo categoryRepo, AccountRepo accountRepo) {
