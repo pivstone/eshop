@@ -1,4 +1,4 @@
-package com.pivstone.eshop.domain;
+package com.pivstone.eshop.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;

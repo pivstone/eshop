@@ -1,6 +1,6 @@
-package com.pivstone.eshop.repo;
+package com.pivstone.eshop.jpa;
 
-import com.pivstone.eshop.domain.Product;
+import com.pivstone.eshop.model.Product;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.PagingAndSortingRepository;
@@ -21,4 +21,6 @@ public interface ProductRepo extends PagingAndSortingRepository<Product, UUID> {
     Optional<Product> findByName(String name);
 
     Page<Product> findByCategory_Id(UUID categoryID, Pageable pageable);
+
+    Optional<Product> findById(UUID id);
 }

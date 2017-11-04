@@ -1,19 +1,24 @@
 package com.pivstone.eshop.controller;
 
-import com.pivstone.eshop.domain.Category;
-import com.pivstone.eshop.domain.Product;
-import com.pivstone.eshop.repo.CategoryRepo;
-import com.pivstone.eshop.repo.ProductRepo;
+import com.pivstone.eshop.jpa.CategoryRepo;
+import com.pivstone.eshop.model.Category;
+import com.pivstone.eshop.model.Product;
+import com.pivstone.eshop.resource.ProductResource;
+import com.pivstone.eshop.resource.ProductResourceAssembler;
+import com.pivstone.eshop.services.ProductService;
 import com.pivstone.eshop.utils.CurrencyUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.ExposesResourceFor;
+import org.springframework.hateoas.PagedResources;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import javax.persistence.EntityNotFoundException;
 import java.math.BigDecimal;
 import java.net.URI;
 import java.util.Currency;
@@ -27,28 +32,33 @@ import java.util.UUID;
 
 @RestController("product")
 @RequestMapping("/products")
+@ExposesResourceFor(ProductResource.class)
 public class ProductController {
 
     @Autowired
-    private ProductRepo repo;
+    private ProductService service;
 
     @Autowired
     private CurrencyUtils utils;
     @Autowired
     private CategoryRepo categoryRepo;
 
+    @Autowired
+    private ProductResourceAssembler assembler;
 
     private static final Currency CURRENCY = Currency.getInstance("EUR");
 
     @GetMapping("/{id}")
-    private Product show(@PathVariable UUID id) {
-        return repo.findOne(id);
+    public ProductResource show(@PathVariable UUID id) {
+        Product entity = service.findOne(id).orElseThrow(() -> new EntityNotFoundException("Product not found"));
+        return assembler.toResource(entity);
     }
 
     @GetMapping("/")
-    private Page<Product> index(@PageableDefault(value = 15, sort = {"name"}, direction = Sort.Direction.DESC)
-                                Pageable pageable) {
-        return this.repo.findAll(pageable);
+    public PagedResources<ProductResource> index(@PageableDefault(sort = "name") Pageable pageable,
+                                                 PagedResourcesAssembler<Product> assembler) {
+        Page<Product> products = this.service.findAll(pageable);
+        return assembler.toResource(products, this.assembler);
     }
 
     /**
@@ -64,7 +74,7 @@ public class ProductController {
             Category category = categoryRepo.findOne(categoryId);
             product.getCategory().add(category);
         }
-        Product result = this.repo.save(product);
+        Product result = this.service.save(product);
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest().path("/{id}")
                 .buildAndExpand(result.getId()).toUri();
@@ -79,7 +89,7 @@ public class ProductController {
      */
     @DeleteMapping("/{id}")
     private ResponseEntity<Product> destroy(@PathVariable UUID id) {
-        this.repo.delete(id);
+        this.service.delete(id);
         return ResponseEntity.noContent().build();
     }
 
@@ -87,7 +97,7 @@ public class ProductController {
      * Update
      *
      * @param id      productId
-     * @param product
+     * @param product product
      * @return
      */
     @PutMapping("/{id}")
@@ -98,7 +108,7 @@ public class ProductController {
             Category category = categoryRepo.findOne(categoryId);
             product.getCategory().add(category);
         }
-        return this.repo.save(product);
+        return this.service.save(product);
     }
 
     /**

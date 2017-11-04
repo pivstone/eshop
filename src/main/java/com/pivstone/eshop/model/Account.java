@@ -1,4 +1,4 @@
-package com.pivstone.eshop.domain;
+package com.pivstone.eshop.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.pivstone.eshop.auth.AdminAuthority;

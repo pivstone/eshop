@@ -1,8 +1,8 @@
 package com.pivstone.eshop.auth;
 
 
-import com.pivstone.eshop.domain.Account;
-import com.pivstone.eshop.repo.AccountRepo;
+import com.pivstone.eshop.model.Account;
+import com.pivstone.eshop.jpa.AccountRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

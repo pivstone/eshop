@@ -1,7 +1,7 @@
-package com.pivstone.eshop.repo;
+package com.pivstone.eshop.jpa;
 
-import com.pivstone.eshop.domain.Category;
-import com.pivstone.eshop.domain.Product;
+import com.pivstone.eshop.model.Category;
+import com.pivstone.eshop.model.Product;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -11,8 +11,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import java.math.BigDecimal;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
@@ -30,8 +28,10 @@ public class ProductRepoTest {
     @Autowired
     private CategoryRepo categoryRepo;
 
+
     private UUID categoryId;
     private Category category;
+
 
     @Before
     public void setUp() {

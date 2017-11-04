@@ -1,8 +1,8 @@
 package com.pivstone.eshop.controller;
 
 import com.pivstone.eshop.EshopApplication;
-import com.pivstone.eshop.domain.Product;
-import com.pivstone.eshop.repo.ProductRepo;
+import com.pivstone.eshop.model.Product;
+import com.pivstone.eshop.jpa.ProductRepo;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -95,15 +95,15 @@ public class ProductControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(contentType))
                 .andExpect(jsonPath("$.content", hasSize(2)))
-                .andExpect(jsonPath("$.content[0].id", is(this.car.getId().toString())))
-                .andExpect(jsonPath("$.content[0].name", is(this.car.getName())))
-                .andExpect(jsonPath("$.content[1].id", is(this.bike.getId().toString())))
-                .andExpect(jsonPath("$.content[1].name", is(this.bike.getName())));
+                .andExpect(jsonPath("$.content[0].id", is(this.bike.getId().toString())))
+                .andExpect(jsonPath("$.content[0].name", is(this.bike.getName())))
+                .andExpect(jsonPath("$.content[1].id", is(this.car.getId().toString())))
+                .andExpect(jsonPath("$.content[1].name", is(this.car.getName())));
 
     }
 
     @Test
-    @WithMockUser(username="admin",roles={"USER","ADMIN"})
+    @WithMockUser(username = "admin", roles = {"USER", "ADMIN"})
     public void testCreateProduct() throws Exception {
         Product mobile = new Product();
         mobile.setName("mobile");
@@ -117,7 +117,7 @@ public class ProductControllerTest {
     }
 
     @Test
-    @WithMockUser(username="admin",roles={"USER","ADMIN"})
+    @WithMockUser(username = "admin", roles = {"USER", "ADMIN"})
     public void testDestroyProduct() throws Exception {
         Product box = new Product();
         box.setName("test2");
@@ -133,7 +133,7 @@ public class ProductControllerTest {
     }
 
     @Test
-    @WithMockUser(username="admin",roles={"USER","ADMIN"})
+    @WithMockUser(username = "admin", roles = {"USER", "ADMIN"})
     public void testUpdateProduct() throws Exception {
         Product product = new Product();
         product.setName("test2");

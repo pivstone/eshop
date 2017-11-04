@@ -1,6 +1,6 @@
-package com.pivstone.eshop.repo;
+package com.pivstone.eshop.jpa;
 
-import com.pivstone.eshop.domain.Category;
+import com.pivstone.eshop.model.Category;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
@@ -14,4 +14,5 @@ import java.util.UUID;
 @Repository
 public interface CategoryRepo extends PagingAndSortingRepository<Category, UUID> {
     Optional<Category> findByName(String name);
+    Optional<Category> findById(UUID id);
 }

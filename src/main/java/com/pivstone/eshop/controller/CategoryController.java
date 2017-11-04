@@ -1,18 +1,25 @@
 package com.pivstone.eshop.controller;
 
-import com.pivstone.eshop.domain.Category;
-import com.pivstone.eshop.domain.Product;
-import com.pivstone.eshop.repo.CategoryRepo;
-import com.pivstone.eshop.repo.ProductRepo;
+import com.pivstone.eshop.jpa.CategoryRepo;
+import com.pivstone.eshop.jpa.ProductRepo;
+import com.pivstone.eshop.model.Category;
+import com.pivstone.eshop.model.Product;
+import com.pivstone.eshop.resource.CategoryResource;
+import com.pivstone.eshop.resource.CategoryResourceAssembler;
+import com.pivstone.eshop.services.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.ExposesResourceFor;
+import org.springframework.hateoas.PagedResources;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import javax.persistence.EntityNotFoundException;
 import java.net.URI;
 import java.util.UUID;
 
@@ -22,31 +29,37 @@ import java.util.UUID;
  */
 @RestController("category")
 @RequestMapping("/categories")
+@ExposesResourceFor(CategoryResource.class)
 public class CategoryController {
-    private final CategoryRepo categoryRepo;
+    @Autowired
+    private CategoryService categoryService;
     private final ProductRepo productRepo;
 
     @Autowired
-    public CategoryController(CategoryRepo categoryRepo, ProductRepo productRepo) {
-        this.categoryRepo = categoryRepo;
+    private CategoryResourceAssembler assembler;
+
+    @Autowired
+    public CategoryController(ProductRepo productRepo) {
         this.productRepo = productRepo;
     }
 
     @GetMapping("/")
-    private Page<Category> index(@PageableDefault(value = 15, sort = {"name"}, direction = Sort.Direction.DESC)
-                                 Pageable pageable) {
+    public PagedResources<CategoryResource> index(@PageableDefault Pageable pageable,
+                                                  PagedResourcesAssembler<Category> assembler) {
 
-        return this.categoryRepo.findAll(pageable);
+        Page<Category> categories = this.categoryService.findAll(pageable);
+        return assembler.toResource(categories, this.assembler);
     }
 
     @GetMapping("/{id}")
-    private Category show(@PathVariable UUID id) {
-        return categoryRepo.findOne(id);
+    public CategoryResource show(@PathVariable UUID id) {
+        Category category = categoryService.findOne(id).orElseThrow(() -> new EntityNotFoundException("category not found"));
+        return assembler.toResource(category);
     }
 
     @PostMapping
     private ResponseEntity<Category> create(@RequestBody Category category) {
-        Category result = this.categoryRepo.save(category);
+        Category result = this.categoryService.save(category);
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest().path("/{id}")
                 .buildAndExpand(result.getId()).toUri();
@@ -62,14 +75,14 @@ public class CategoryController {
 
     @DeleteMapping("/{id}")
     private ResponseEntity<Category> destroy(@PathVariable UUID id) {
-        this.categoryRepo.delete(id);
+        this.categoryService.delete(id);
         return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/{id}")
     private Category update(@PathVariable UUID id, @RequestBody Category category) {
         category.setId(id);
-        return this.categoryRepo.save(category);
+        return this.categoryService.save(category);
     }
 
 }

@@ -1,9 +1,9 @@
 package com.pivstone.eshop.controller;
 
 import com.pivstone.eshop.EshopApplication;
-import com.pivstone.eshop.domain.Category;
-import com.pivstone.eshop.repo.CategoryRepo;
-import com.pivstone.eshop.repo.ProductRepo;
+import com.pivstone.eshop.model.Category;
+import com.pivstone.eshop.jpa.CategoryRepo;
+import com.pivstone.eshop.jpa.ProductRepo;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

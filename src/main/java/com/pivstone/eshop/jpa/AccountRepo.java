@@ -1,6 +1,6 @@
-package com.pivstone.eshop.repo;
+package com.pivstone.eshop.jpa;
 
-import com.pivstone.eshop.domain.Account;
+import com.pivstone.eshop.model.Account;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

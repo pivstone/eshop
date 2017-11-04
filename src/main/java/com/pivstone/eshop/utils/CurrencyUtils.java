@@ -1,7 +1,5 @@
 package com.pivstone.eshop.utils;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.OkHttpClient;
@@ -40,8 +38,8 @@ public class CurrencyUtils {
     public void init() {
         scheduler = Executors.newScheduledThreadPool(1);
         final Runnable runnable = () -> {
-            HashMap<String, Double> rates = fetchRates();
-            this.rates = rates;
+            HashMap<String, Double> tempRates = fetchRates();
+            this.rates = tempRates;
         };
         //schedule update the rates
         scheduler.scheduleAtFixedRate(runnable, 0, 120, TimeUnit.SECONDS);
@@ -59,12 +57,8 @@ public class CurrencyUtils {
             log.info(json);
             Map data = mapper.readValue(json, Map.class);
             rates = (HashMap<String, Double>) data.get("rates");
-        } catch (JsonMappingException e) {
-            e.printStackTrace();
-        } catch (JsonParseException e) {
-            e.printStackTrace();
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("exchange rates update failed, cause: {}", e);
         }
         return rates;
     }
