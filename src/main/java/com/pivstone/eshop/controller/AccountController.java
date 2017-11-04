@@ -2,11 +2,11 @@ package com.pivstone.eshop.controller;
 
 import com.pivstone.eshop.repo.AccountRepo;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Optional;
+import java.security.Principal;
 
 /**
  * Mail: pivstone@gmail.com <br>
@@ -20,21 +20,10 @@ public class AccountController {
     private AccountRepo accountRepo;
 
 
-    //@GetMapping("/login")
-    private ModelAndView login(@RequestParam Optional<String> error,
-                               @RequestParam Optional<String> logout,
-                               ModelMap modeld) {
+    @GetMapping("/current")
+    private Principal current(Principal principal) {
 
-        ModelAndView model = new ModelAndView();
-        if (error != null) {
-            model.addObject("error", "用户名或密码不正确!");
-        }
-
-        if (logout != null) {
-            model.addObject("msg", "您已成功注销系统.");
-        }
-        model.setViewName("login");
-        return model;
+        return principal;
     }
 
 

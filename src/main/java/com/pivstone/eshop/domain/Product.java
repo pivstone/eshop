@@ -1,7 +1,7 @@
 package com.pivstone.eshop.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -28,7 +28,7 @@ public class Product {
     private Set<Category> category = new HashSet<>();
     private BigDecimal price;
     @Transient
-    @JsonInclude
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Set<UUID> categoriesIdList;
     @JsonInclude
     @Transient

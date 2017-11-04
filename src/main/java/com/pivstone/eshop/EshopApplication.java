@@ -6,10 +6,12 @@ import com.pivstone.eshop.domain.Product;
 import com.pivstone.eshop.repo.AccountRepo;
 import com.pivstone.eshop.repo.CategoryRepo;
 import com.pivstone.eshop.repo.ProductRepo;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -21,6 +23,8 @@ public class EshopApplication {
     public static void main(String[] args) {
         SpringApplication.run(EshopApplication.class, args);
     }
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Bean
     CommandLineRunner init(ProductRepo productRepo, CategoryRepo categoryRepo, AccountRepo accountRepo) {
@@ -55,7 +59,7 @@ public class EshopApplication {
                 Account admin = new Account();
                 admin.setAdmin(Boolean.TRUE);
                 admin.setUsername("admin");
-                admin.setPassword("password");
+                admin.setPassword(passwordEncoder.encode("password"));
                 accountRepo.save(admin);
             }
 

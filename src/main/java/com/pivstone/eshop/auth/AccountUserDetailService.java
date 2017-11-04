@@ -15,8 +15,8 @@ import java.util.Optional;
  * Mail: pivstone@gmail.com <br>
  * Created by pivstone on 2017/11/3.
  */
-//@Repository
-public class UserDetailService implements UserDetailsService {
+@Repository
+public class AccountUserDetailService implements UserDetailsService {
     @Autowired
     private AccountRepo accountRepo;
 
