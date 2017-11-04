@@ -2,7 +2,6 @@ package com.pivstone.eshop.resource;
 
 import com.pivstone.eshop.controller.ProductController;
 import com.pivstone.eshop.model.Product;
-import org.springframework.data.domain.Page;
 import org.springframework.hateoas.mvc.ResourceAssemblerSupport;
 import org.springframework.stereotype.Component;
 

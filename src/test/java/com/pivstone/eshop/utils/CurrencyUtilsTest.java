@@ -10,6 +10,7 @@ import java.math.BigDecimal;
 import java.util.Currency;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Mail: pivstone@gmail.com <br>
@@ -25,8 +26,8 @@ public class CurrencyUtilsTest {
     @Test
     public void testExchange() throws Exception {
         BigDecimal money = new BigDecimal(12);
-        utils.exchange(Currency.getInstance("CNY"), money);
-        assertEquals(money, new BigDecimal(12));
+        money = utils.exchange(Currency.getInstance("CNY"), money);
+        assertNotNull(money);
         assertEquals(utils.getMap().size(), 31);
     }
 

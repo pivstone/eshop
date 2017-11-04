@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 import javax.persistence.*;
+import javax.validation.constraints.DecimalMin;
+import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.Currency;
 import java.util.HashSet;
@@ -22,10 +24,12 @@ public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
+    @NotNull
     private String name;
 
     @ManyToMany
     private Set<Category> category = new HashSet<>();
+    @DecimalMin(value = "0", message = "should be positive")
     private BigDecimal price;
     @Transient
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)

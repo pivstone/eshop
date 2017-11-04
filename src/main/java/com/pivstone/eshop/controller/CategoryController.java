@@ -1,16 +1,16 @@
 package com.pivstone.eshop.controller;
 
-import com.pivstone.eshop.jpa.CategoryRepo;
 import com.pivstone.eshop.jpa.ProductRepo;
 import com.pivstone.eshop.model.Category;
 import com.pivstone.eshop.model.Product;
 import com.pivstone.eshop.resource.CategoryResource;
 import com.pivstone.eshop.resource.CategoryResourceAssembler;
+import com.pivstone.eshop.resource.ProductResource;
+import com.pivstone.eshop.resource.ProductResourceAssembler;
 import com.pivstone.eshop.services.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.ExposesResourceFor;
@@ -37,6 +37,9 @@ public class CategoryController {
 
     @Autowired
     private CategoryResourceAssembler assembler;
+
+    @Autowired
+    private ProductResourceAssembler productResourceAssembler;
 
     @Autowired
     public CategoryController(ProductRepo productRepo) {
@@ -67,10 +70,11 @@ public class CategoryController {
     }
 
     @GetMapping("/{id}/products")
-    public Page<Product> products(@PathVariable UUID id,
-                                   @PageableDefault(value = 15, sort = {"id"}, direction = Sort.Direction.DESC)
-                                   Pageable pageable) {
-        return this.productRepo.findByCategory_Id(id, pageable);
+    public PagedResources<ProductResource> products(@PathVariable UUID id,
+                                                    @PageableDefault(sort = {"id"}) Pageable pageable,
+                                                    PagedResourcesAssembler<Product> assembler) {
+        Page<Product> products = this.productRepo.findByCategory_Id(id, pageable);
+        return assembler.toResource(products, this.productResourceAssembler);
     }
 
     @DeleteMapping("/{id}")

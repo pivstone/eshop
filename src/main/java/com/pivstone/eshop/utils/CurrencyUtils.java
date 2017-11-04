@@ -25,9 +25,7 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class CurrencyUtils {
     private OkHttpClient client = new OkHttpClient();
-    private HashMap<String, Double> rates;
-    private String url = "http://api.fixer.io/latest";
-    private ScheduledExecutorService scheduler;
+    private Map<String, Double> rates;
 
     public BigDecimal exchange(Currency target, BigDecimal money) {
         double rate = this.rates.get(target.getCurrencyCode());
@@ -36,18 +34,18 @@ public class CurrencyUtils {
 
     @PostConstruct
     public void init() {
-        scheduler = Executors.newScheduledThreadPool(1);
+        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
         final Runnable runnable = () -> {
-            HashMap<String, Double> tempRates = fetchRates();
-            this.rates = tempRates;
+            this.rates = fetchRates();
         };
         //schedule update the rates
         scheduler.scheduleAtFixedRate(runnable, 0, 120, TimeUnit.SECONDS);
 
     }
 
-    private HashMap<String, Double> fetchRates() {
-        HashMap<String, Double> rates = new HashMap<>();
+    private Map<String, Double> fetchRates() {
+        Map<String, Double> rates = new HashMap<>();
+        String url = "http://api.fixer.io/latest";
         Request request = new Request.Builder()
                 .url(url)
                 .build();
@@ -55,15 +53,15 @@ public class CurrencyUtils {
         try (Response response = client.newCall(request).execute()) {
             String json = response.body().string();
             log.info(json);
-            Map data = mapper.readValue(json, Map.class);
-            rates = (HashMap<String, Double>) data.get("rates");
+            Fixer data = mapper.readValue(json, Fixer.class);
+            rates = data.getRates();
         } catch (IOException e) {
             log.error("exchange rates update failed, cause: {}", e);
         }
         return rates;
     }
 
-    public HashMap<String, Double> getMap() {
+    public Map<String, Double> getMap() {
         return this.rates;
     }
 
