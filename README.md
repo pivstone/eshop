@@ -8,8 +8,12 @@
 
 ### build
 
-> ./gradlew build
+```sh
+./gradlew build
+```
 
 ### test
 
-> ./gradlew test
+```sh
+./gradlew test
+```
