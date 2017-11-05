@@ -34,6 +34,7 @@ public class CurrencyUtils {
 
     @PostConstruct
     public void init() {
+        this.rates = fetchRates();
         ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
         final Runnable runnable = () -> {
             this.rates = fetchRates();
@@ -51,10 +52,14 @@ public class CurrencyUtils {
                 .build();
         ObjectMapper mapper = new ObjectMapper();
         try (Response response = client.newCall(request).execute()) {
-            String json = response.body().string();
-            log.info(json);
-            Fixer data = mapper.readValue(json, Fixer.class);
-            rates = data.getRates();
+            if (response.code() == 200) {
+                String json = response.body().string();
+                log.info(json);
+                Fixer data = mapper.readValue(json, Fixer.class);
+                rates = data.getRates();
+            } else {
+                log.error("Update exchange rate from fiex failed:{}", response.code());
+            }
         } catch (IOException e) {
             log.error("exchange rates update failed, cause: {}", e);
         }
