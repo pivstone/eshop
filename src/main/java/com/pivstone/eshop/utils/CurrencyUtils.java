@@ -20,6 +20,9 @@ import java.util.concurrent.TimeUnit;
 /**
  * Mail: pivstone@gmail.com <br>
  * Created by pivstone on 2017/11/3.
+ * Exchange rates come from fixer.io
+ *
+ *
  */
 @Component
 @Slf4j

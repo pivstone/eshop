@@ -33,7 +33,7 @@ import java.util.UUID;
  */
 
 @RestController("product")
-@RequestMapping("/products")
+@RequestMapping(path = "/products", produces = "application/json; charset=UTF-8")
 @ExposesResourceFor(ProductResource.class)
 public class ProductController {
 
@@ -137,7 +137,7 @@ public class ProductController {
         }
     }
 
-    private Product getInstance(UUID id){
+    private Product getInstance(UUID id) {
         return this.service.findOne(id).orElseThrow(() -> new EntityNotFoundException("product not found"));
     }
 }

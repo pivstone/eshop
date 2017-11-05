@@ -28,7 +28,7 @@ import java.util.UUID;
  * Created by pivstone on 2017/11/3.
  */
 @RestController("category")
-@RequestMapping("/categories")
+@RequestMapping(path = "/categories", produces = "application/json; charset=UTF-8")
 @ExposesResourceFor(CategoryResource.class)
 public class CategoryController {
     @Autowired
