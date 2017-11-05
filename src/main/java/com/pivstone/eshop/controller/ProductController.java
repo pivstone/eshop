@@ -1,10 +1,10 @@
 package com.pivstone.eshop.controller;
 
-import com.pivstone.eshop.jpa.CategoryRepo;
 import com.pivstone.eshop.model.Category;
 import com.pivstone.eshop.model.Product;
 import com.pivstone.eshop.resource.ProductResource;
 import com.pivstone.eshop.resource.ProductResourceAssembler;
+import com.pivstone.eshop.services.CategoryService;
 import com.pivstone.eshop.services.ProductService;
 import com.pivstone.eshop.utils.CurrencyUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,9 +19,11 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.persistence.EntityNotFoundException;
+import javax.validation.Valid;
 import java.math.BigDecimal;
 import java.net.URI;
 import java.util.Currency;
+import java.util.Optional;
 import java.util.UUID;
 
 
@@ -41,7 +43,7 @@ public class ProductController {
     @Autowired
     private CurrencyUtils utils;
     @Autowired
-    private CategoryRepo categoryRepo;
+    private CategoryService categoryService;
 
     @Autowired
     private ProductResourceAssembler assembler;
@@ -69,11 +71,8 @@ public class ProductController {
      */
     @PostMapping("/")
     private ResponseEntity<Product> create(@RequestBody Product product) {
-        product = exchange(product);
-        for (UUID categoryId : product.getCategoriesIdList()) {
-            Category category = categoryRepo.findOne(categoryId);
-            product.getCategory().add(category);
-        }
+        exchange(product);
+        setCategory(product);
         Product result = this.service.save(product);
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest().path("/{id}")
@@ -101,28 +100,36 @@ public class ProductController {
      * @return
      */
     @PutMapping("/{id}")
-    private Product update(@PathVariable UUID id, @RequestBody Product product) {
+    private Product update(@PathVariable UUID id, @Valid @RequestBody Product product) {
         product.setId(id);
-        product = exchange(product);
-        for (UUID categoryId : product.getCategoriesIdList()) {
-            Category category = categoryRepo.findOne(categoryId);
-            product.getCategory().add(category);
-        }
+        exchange(product);
+        setCategory(product);
         return this.service.save(product);
     }
 
     /**
-     * currency excahneg
+     * currency exchnge currency
      *
      * @param product
-     * @return
      */
-    private Product exchange(Product product) {
+    private void exchange(Product product) {
         if (!product.getCurrency().getCurrencyCode().equals(CURRENCY.getCurrencyCode())) {
             BigDecimal money = utils.exchange(product.getCurrency(), product.getPrice());
             product.setPrice(money);
             product.setCurrency(CURRENCY.getCurrencyCode());
         }
-        return product;
+    }
+
+    /**
+     * set category from categories id list
+     * @param product
+     */
+    private void setCategory(Product product) {
+        for (UUID categoryId : product.getCategoriesIdList()) {
+            Optional<Category> category = categoryService.findOne(categoryId);
+            if (category.isPresent()) {
+                product.getCategory().add(category.get());
+            }
+        }
     }
 }

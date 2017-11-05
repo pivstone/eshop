@@ -3,6 +3,7 @@ package com.pivstone.eshop.model;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
+import org.hibernate.validator.constraints.NotBlank;
 
 import javax.persistence.*;
 import javax.validation.constraints.DecimalMin;
@@ -12,7 +13,6 @@ import java.util.Currency;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 /**
  * Mail: pivstone@gmail.com <br>
@@ -25,15 +25,17 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
     @NotNull
+    @NotBlank(message = "name shouldn't be blank")
     private String name;
 
     @ManyToMany
     private Set<Category> category = new HashSet<>();
+    @NotNull
     @DecimalMin(value = "0", message = "should be positive")
     private BigDecimal price;
     @Transient
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    private Set<UUID> categoriesIdList;
+    private Set<UUID> categoriesIdList = new HashSet<>();
     @JsonInclude
     @Transient
     private Currency currency = Currency.getInstance("EUR");
@@ -44,10 +46,6 @@ public class Product {
 
     public Currency getCurrency() {
         return this.currency;
-    }
-
-    public Set<UUID> getCategoriesIdList() {
-        return getCategory().stream().map(Category::getId).collect(Collectors.toSet());
     }
 
 }
