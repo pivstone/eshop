@@ -80,14 +80,14 @@ public class ProductControllerTest {
 
     @Test
     public void testIndexProduct() throws Exception {
-        this.mvc.perform(get("/products/"))
+        this.mvc.perform(get("/products/?sort=name,DESC"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(contentType))
                 .andExpect(jsonPath("$.content", hasSize(2)))
-                .andExpect(jsonPath("$.content[0].id", is(this.bike.getId().toString())))
-                .andExpect(jsonPath("$.content[0].name", is(this.bike.getName())))
-                .andExpect(jsonPath("$.content[1].id", is(this.car.getId().toString())))
-                .andExpect(jsonPath("$.content[1].name", is(this.car.getName())));
+                .andExpect(jsonPath("$.content[0].id", is(this.car.getId().toString())))
+                .andExpect(jsonPath("$.content[0].name", is(this.car.getName())))
+                .andExpect(jsonPath("$.content[1].id", is(this.bike.getId().toString())))
+                .andExpect(jsonPath("$.content[1].name", is(this.bike.getName())));
 
     }
 
