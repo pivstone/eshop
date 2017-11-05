@@ -15,4 +15,5 @@ import java.util.UUID;
 public interface CategoryRepo extends PagingAndSortingRepository<Category, UUID> {
     Optional<Category> findByName(String name);
     Optional<Category> findById(UUID id);
+    boolean existsByName(String name);
 }

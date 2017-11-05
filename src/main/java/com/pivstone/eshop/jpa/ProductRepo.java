@@ -23,4 +23,6 @@ public interface ProductRepo extends PagingAndSortingRepository<Product, UUID> {
     Page<Product> findByCategory_Id(UUID categoryID, Pageable pageable);
 
     Optional<Product> findById(UUID id);
+
+    boolean existsByName(String name);
 }

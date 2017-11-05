@@ -11,6 +11,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.crypto.password.StandardPasswordEncoder;
 
@@ -19,6 +20,7 @@ import java.util.Arrays;
 import java.util.Optional;
 
 @SpringBootApplication
+@EnableJpaAuditing
 public class EshopApplication {
 
     public static void main(String[] args) {
@@ -38,8 +40,7 @@ public class EshopApplication {
         return (args) -> {
             Arrays.asList("fox,rabbit,cat,dog".split(","))
                     .forEach(name -> {
-                        Optional<Category> categoryOptional = categoryRepo.findByName(name);
-                        if (!categoryOptional.isPresent()) {
+                        if (!categoryRepo.existsByName(name)) {
                             Category category = new Category();
                             category.setName(name);
                             categoryRepo.save(category);
@@ -48,8 +49,7 @@ public class EshopApplication {
 
             Arrays.asList("car,bike,mobile".split(","))
                     .forEach(name -> {
-                        Optional<Product> productOptional = productRepo.findByName(name);
-                        if (!productOptional.isPresent()) {
+                        if (!productRepo.existsByName(name)) {
                             Product product = new Product();
                             product.setName(name);
                             product.setPrice(new BigDecimal(12.20));
