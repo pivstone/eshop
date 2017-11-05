@@ -1,27 +1,16 @@
 package com.pivstone.eshop.controller;
 
+import com.pivstone.eshop.jpa.CategoryRepo;
 import com.pivstone.eshop.model.Category;
 import com.pivstone.eshop.model.Product;
 import com.pivstone.eshop.resource.ProductResource;
-import com.pivstone.eshop.resource.ProductResourceAssembler;
-import com.pivstone.eshop.services.CategoryService;
-import com.pivstone.eshop.services.ProductService;
 import com.pivstone.eshop.utils.CurrencyUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
-import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.ExposesResourceFor;
-import org.springframework.hateoas.PagedResources;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import javax.persistence.EntityNotFoundException;
-import javax.validation.Valid;
 import java.math.BigDecimal;
-import java.net.URI;
 import java.util.Currency;
 import java.util.Optional;
 import java.util.UUID;
@@ -35,80 +24,16 @@ import java.util.UUID;
 @RestController("product")
 @RequestMapping(path = "/products", produces = "application/json; charset=UTF-8")
 @ExposesResourceFor(ProductResource.class)
-public class ProductController {
+public class ProductController extends AbstractController<Product> {
 
-    @Autowired
-    private ProductService service;
 
     @Autowired
     private CurrencyUtils utils;
-    @Autowired
-    private CategoryService categoryService;
 
     @Autowired
-    private ProductResourceAssembler assembler;
-
+    private CategoryRepo categoryRepo;
     private static final Currency CURRENCY = Currency.getInstance("EUR");
 
-    @GetMapping("/{id}")
-    public ProductResource show(@PathVariable UUID id) {
-        Product entity = getInstance(id);
-        return assembler.toResource(entity);
-    }
-
-    @GetMapping("/")
-    public PagedResources<ProductResource> index(@PageableDefault(sort = "name") Pageable pageable,
-                                                 PagedResourcesAssembler<Product> assembler) {
-        Page<Product> products = this.service.findAll(pageable);
-        return assembler.toResource(products, this.assembler);
-    }
-
-    /**
-     * Create new product
-     *
-     * @param product product
-     * @return 201
-     */
-    @PostMapping("/")
-    private ResponseEntity<Product> create(@RequestBody Product product) {
-        exchange(product);
-        setCategory(product);
-        Product result = this.service.save(product);
-        URI location = ServletUriComponentsBuilder
-                .fromCurrentRequest().path("/{id}")
-                .buildAndExpand(result.getId()).toUri();
-        return ResponseEntity.created(location).body(result);
-    }
-
-    /**
-     * Delete Product
-     *
-     * @param id product ID
-     * @return 204
-     */
-    @DeleteMapping("/{id}")
-    private ResponseEntity<Product> destroy(@PathVariable UUID id) {
-        Product entity = getInstance(id);
-        this.service.delete(entity.getId());
-        return ResponseEntity.noContent().build();
-    }
-
-    /**
-     * Update
-     *
-     * @param id      productId
-     * @param product product
-     * @return
-     */
-    @PutMapping("/{id}")
-    private ProductResource update(@PathVariable UUID id, @Valid @RequestBody Product product) {
-        Product entity = getInstance(id);
-        product.setId(id);
-        product.setCreatedAt(entity.getCreatedAt());
-        exchange(product);
-        setCategory(product);
-        return assembler.toResource(this.service.save(product));
-    }
 
     /**
      * currency exchnge currency
@@ -130,14 +55,22 @@ public class ProductController {
      */
     private void setCategory(Product product) {
         for (UUID categoryId : product.getCategoriesIdList()) {
-            Optional<Category> category = categoryService.findOne(categoryId);
+            Optional<Category> category = categoryRepo.findById(categoryId);
             if (category.isPresent()) {
                 product.getCategory().add(category.get());
             }
         }
     }
 
-    private Product getInstance(UUID id) {
-        return this.service.findOne(id).orElseThrow(() -> new EntityNotFoundException("product not found"));
+    @Override
+    protected void beforeCreate(Product product) {
+        exchange(product);
+        setCategory(product);
+    }
+
+    @Override
+    protected void beforeUpdate(Product product) {
+        exchange(product);
+        setCategory(product);
     }
 }

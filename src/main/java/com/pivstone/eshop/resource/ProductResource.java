@@ -4,8 +4,6 @@ import com.pivstone.eshop.controller.ProductController;
 import com.pivstone.eshop.model.Product;
 import org.springframework.hateoas.Resource;
 
-import javax.xml.bind.annotation.XmlRootElement;
-
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 
@@ -13,7 +11,6 @@ import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
  * Mail: pivstone@gmail.com <br>
  * Created by pivstone on 2017/11/4.
  */
-@XmlRootElement(name = "Products")
 public class ProductResource extends Resource<Product> {
     private final Product product;
 

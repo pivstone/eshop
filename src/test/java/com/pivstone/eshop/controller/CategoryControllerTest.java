@@ -78,7 +78,7 @@ public class CategoryControllerTest {
 
     @Test
     public void testIndexCategory() throws Exception {
-        this.mvc.perform(get("/categories/"))
+        this.mvc.perform(get("/categories/?sort=name,DESC"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(contentType))
                 .andExpect(jsonPath("$.content", hasSize(2)))

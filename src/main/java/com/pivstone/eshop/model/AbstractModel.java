@@ -7,6 +7,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.UUID;
 
 /**
  * Mail: pivstone@gmail.com <br>
@@ -15,7 +16,11 @@ import java.util.Date;
 @Data
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
-public abstract class AbstractTimestampModel {
+public abstract class AbstractModel {
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private UUID id;
+
     @Temporal(TemporalType.TIMESTAMP)
     @Column(updatable = false, insertable = true)
     @CreatedDate

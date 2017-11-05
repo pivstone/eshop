@@ -3,10 +3,10 @@ package com.pivstone.eshop.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.ManyToMany;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.UUID;
 
 /**
  * Mail: pivstone@gmail.com <br>
@@ -14,10 +14,8 @@ import java.util.UUID;
  */
 @Data
 @Entity
-public class Category extends AbstractTimestampModel {
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private UUID id;
+public class Category extends AbstractModel {
+
     private String name;
     @ManyToMany
     @JsonIgnore

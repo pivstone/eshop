@@ -23,14 +23,11 @@ import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.util.Map;
 
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertFalse;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 /**
  * Mail: pivstone@gmail.com <br>
@@ -137,10 +134,11 @@ public class ProductControllerTest {
                 .with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(contentType))
-                .andExpect(jsonPath("$.createdAt",notNullValue()))
+                .andExpect(jsonPath("$.createdAt", notNullValue()))
                 .andExpect(jsonPath("$.name", is(product.getName())));
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     @WithMockUser(username = "admin", roles = {"USER", "ADMIN"})
     public void testCreateProductWithCategoryId() throws Exception {
@@ -156,7 +154,7 @@ public class ProductControllerTest {
         Map data = mapper.readValue(productJson, Map.class);
         // CategoriesIdList exclude at the json
         // so need add it into json string manually
-        data.put("categoriesIdList",product.getCategoriesIdList());
+        data.put("categoriesIdList", product.getCategoriesIdList());
         productJson = json(data);
         this.mvc.perform(post("/products/")
                 .contentType(contentType)
