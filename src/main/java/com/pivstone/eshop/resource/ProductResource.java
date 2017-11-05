@@ -16,6 +16,6 @@ public class ProductResource extends Resource<Product> {
     public ProductResource(Product entity) {
         super(entity);
         this.add(linkTo(methodOn(ProductController.class).show(entity.getId())).withSelfRel());
-        this.add(linkTo(methodOn(ProductController.class).index(null, null)).withRel("list"));
+        this.add(linkTo(methodOn(ProductController.class).index(null)).withRel("list"));
     }
 }

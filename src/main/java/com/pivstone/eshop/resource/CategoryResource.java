@@ -16,7 +16,7 @@ public class CategoryResource extends Resource<Category> {
     public CategoryResource(Category category) {
         super(category);
         this.add(linkTo(methodOn(CategoryController.class).show(category.getId())).withSelfRel());
-        this.add(linkTo(methodOn(CategoryController.class).index(null, null)).withRel("list"));
+        this.add(linkTo(methodOn(CategoryController.class).index(null)).withRel("list"));
         this.add(linkTo(methodOn(CategoryController.class).products(category.getId(), null, null)).withRel("products"));
     }
 }

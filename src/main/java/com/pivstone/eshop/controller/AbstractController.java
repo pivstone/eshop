@@ -33,6 +33,8 @@ public abstract class AbstractController<E extends AbstractModel> {
     @Autowired
     private RestRepo<E> repository;
 
+    @Autowired
+    private PagedResourcesAssembler<E> pagedAssembler;
 
     @GetMapping("/{id}")
     public Resource<E> show(@PathVariable UUID id) {
@@ -41,10 +43,9 @@ public abstract class AbstractController<E extends AbstractModel> {
     }
 
     @GetMapping("/")
-    public PagedResources<? extends Resource<E>> index(@PageableDefault(sort = "id") Pageable pageable,
-                                                       PagedResourcesAssembler<E> assembler) {
+    public PagedResources<? extends Resource<E>> index(@PageableDefault(sort = "id") Pageable pageable) {
         Page<E> entities = this.repository.findAll(pageable);
-        return assembler.toResource(entities, this.assembler);
+        return pagedAssembler.toResource(entities, this.assembler);
     }
 
 
