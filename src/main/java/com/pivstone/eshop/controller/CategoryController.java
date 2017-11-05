@@ -86,11 +86,11 @@ public class CategoryController {
     }
 
     @PutMapping("/{id}")
-    private Category update(@PathVariable UUID id, @RequestBody Category category) {
+    private CategoryResource update(@PathVariable UUID id, @RequestBody Category category) {
         Category entity = getInstance(id);
         category.setId(entity.getId());
         category.setCreatedAt(entity.getCreatedAt());
-        return this.service.save(category);
+        return assembler.toResource(this.service.save(category));
     }
 
     private Category getInstance(UUID id) {
