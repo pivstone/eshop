@@ -101,13 +101,13 @@ public class ProductController {
      * @return
      */
     @PutMapping("/{id}")
-    private Product update(@PathVariable UUID id, @Valid @RequestBody Product product) {
+    private ProductResource update(@PathVariable UUID id, @Valid @RequestBody Product product) {
         Product entity = getInstance(id);
         product.setId(id);
         product.setCreatedAt(entity.getCreatedAt());
         exchange(product);
         setCategory(product);
-        return this.service.save(product);
+        return assembler.toResource(this.service.save(product));
     }
 
     /**
