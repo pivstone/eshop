@@ -17,3 +17,10 @@
 ```sh
 ./gradlew test
 ```
+
+### Docker Run
+
+```sh
+./gradlew buildDocker
+docker-compose up
+```
