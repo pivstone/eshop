@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 import javax.persistence.EntityNotFoundException;
+import javax.validation.ConstraintViolationException;
 
 /**
  * Mail: pivstone@gmail.com <br>
@@ -19,6 +20,13 @@ public class RestControllerAdvice {
     @ExceptionHandler(EntityNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     VndErrors entityNotFoundExceptionHandler(EntityNotFoundException ex) {
+        return new VndErrors("error", ex.getMessage());
+    }
+
+    @ResponseBody
+    @ExceptionHandler(ConstraintViolationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    VndErrors constraintViolationExceptionHandler(ConstraintViolationException ex) {
         return new VndErrors("error", ex.getMessage());
     }
 }

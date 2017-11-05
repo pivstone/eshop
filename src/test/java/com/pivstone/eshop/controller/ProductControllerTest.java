@@ -2,8 +2,10 @@ package com.pivstone.eshop.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pivstone.eshop.EshopApplication;
-import com.pivstone.eshop.model.Product;
+import com.pivstone.eshop.jpa.CategoryRepo;
 import com.pivstone.eshop.jpa.ProductRepo;
+import com.pivstone.eshop.model.Category;
+import com.pivstone.eshop.model.Product;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -11,22 +13,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.http.converter.HttpMessageConverter;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
-import org.springframework.mock.http.MockHttpOutputMessage;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.nio.charset.Charset;
-import java.util.Arrays;
+import java.util.Map;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -48,6 +47,10 @@ public class ProductControllerTest {
 
     @Autowired
     private ProductRepo productRepo;
+
+    @Autowired
+    private CategoryRepo categoryRepo;
+
     private Product bike;
     private Product car;
 
@@ -58,7 +61,9 @@ public class ProductControllerTest {
         bike = new Product();
         car = new Product();
         bike.setName("bike");
+        bike.setPrice(new BigDecimal(12));
         car.setName("car");
+        car.setPrice(new BigDecimal(12));
         bike = productRepo.save(bike);
         car = productRepo.save(car);
     }
@@ -92,6 +97,7 @@ public class ProductControllerTest {
     public void testCreateProduct() throws Exception {
         Product mobile = new Product();
         mobile.setName("mobile");
+        mobile.setPrice(new BigDecimal(12));
         String productJson = json(mobile);
 
         this.mvc.perform(post("/products/")
@@ -106,6 +112,7 @@ public class ProductControllerTest {
     public void testDestroyProduct() throws Exception {
         Product box = new Product();
         box.setName("test2");
+        box.setPrice(new BigDecimal(12));
         box = this.productRepo.save(box);
         this.mvc.perform(delete("/products/" + box.getId() + "/")
                 .with(csrf()))
@@ -118,7 +125,7 @@ public class ProductControllerTest {
     public void testUpdateProduct() throws Exception {
         Product product = new Product();
         product.setName("test2");
-
+        product.setPrice(new BigDecimal(12));
         product = this.productRepo.save(product);
         product.setName("test3");
         String productJson = json(product);
@@ -131,6 +138,33 @@ public class ProductControllerTest {
                 .andExpect(jsonPath("$.name", is(product.getName())));
     }
 
+    @Test
+    @WithMockUser(username = "admin", roles = {"USER", "ADMIN"})
+    public void testCreateProductWithCategoryId() throws Exception {
+        Category category = new Category();
+        category.setName("test");
+        category = this.categoryRepo.save(category);
+        Product product = new Product();
+        product.setName("test2");
+        product.setPrice(new BigDecimal(12));
+        product.getCategoriesIdList().add(category.getId());
+        String productJson = json(product);
+        ObjectMapper mapper = new ObjectMapper();
+        Map data = mapper.readValue(productJson, Map.class);
+        // CategoriesIdList exclude at the json
+        // so need add it into json string manually
+        data.put("categoriesIdList",product.getCategoriesIdList());
+        productJson = json(data);
+        this.mvc.perform(post("/products/")
+                .contentType(contentType)
+                .content(productJson)
+                .with(csrf()))
+                .andExpect(status().isCreated())
+                .andExpect(content().contentType(contentType))
+                .andExpect(jsonPath("$.name", is(product.getName())))
+                .andExpect(jsonPath("$.category[0].id", is(category.getId().toString())));
+
+    }
 
     protected String json(Object o) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
