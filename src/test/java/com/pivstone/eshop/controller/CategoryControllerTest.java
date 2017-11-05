@@ -22,6 +22,7 @@ import java.nio.charset.Charset;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertFalse;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -70,6 +71,7 @@ public class CategoryControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(contentType))
                 .andExpect(jsonPath("$.id", is(this.color.getId().toString())))
+                .andExpect(jsonPath("$.createdAt",notNullValue()))
                 .andExpect(jsonPath("$.name", is(this.color.getName())));
 
     }
@@ -128,6 +130,7 @@ public class CategoryControllerTest {
                 .with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(contentType))
+                .andExpect(jsonPath("$.createdAt", notNullValue()))
                 .andExpect(jsonPath("$.name", is(category.getName())));
     }
 

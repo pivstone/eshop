@@ -52,7 +52,7 @@ public class ProductController {
 
     @GetMapping("/{id}")
     public ProductResource show(@PathVariable UUID id) {
-        Product entity = service.findOne(id).orElseThrow(() -> new EntityNotFoundException("Product not found"));
+        Product entity = getInstance(id);
         return assembler.toResource(entity);
     }
 
@@ -88,7 +88,8 @@ public class ProductController {
      */
     @DeleteMapping("/{id}")
     private ResponseEntity<Product> destroy(@PathVariable UUID id) {
-        this.service.delete(id);
+        Product entity = getInstance(id);
+        this.service.delete(entity.getId());
         return ResponseEntity.noContent().build();
     }
 
@@ -101,7 +102,9 @@ public class ProductController {
      */
     @PutMapping("/{id}")
     private Product update(@PathVariable UUID id, @Valid @RequestBody Product product) {
+        Product entity = getInstance(id);
         product.setId(id);
+        product.setCreatedAt(entity.getCreatedAt());
         exchange(product);
         setCategory(product);
         return this.service.save(product);
@@ -122,6 +125,7 @@ public class ProductController {
 
     /**
      * set category from categories id list
+     *
      * @param product
      */
     private void setCategory(Product product) {
@@ -131,5 +135,9 @@ public class ProductController {
                 product.getCategory().add(category.get());
             }
         }
+    }
+
+    private Product getInstance(UUID id){
+        return this.service.findOne(id).orElseThrow(() -> new EntityNotFoundException("product not found"));
     }
 }

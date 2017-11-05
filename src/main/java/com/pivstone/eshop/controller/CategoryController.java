@@ -32,7 +32,7 @@ import java.util.UUID;
 @ExposesResourceFor(CategoryResource.class)
 public class CategoryController {
     @Autowired
-    private CategoryService categoryService;
+    private CategoryService service;
     private final ProductRepo productRepo;
 
     @Autowired
@@ -50,19 +50,19 @@ public class CategoryController {
     public PagedResources<CategoryResource> index(@PageableDefault Pageable pageable,
                                                   PagedResourcesAssembler<Category> assembler) {
 
-        Page<Category> categories = this.categoryService.findAll(pageable);
+        Page<Category> categories = this.service.findAll(pageable);
         return assembler.toResource(categories, this.assembler);
     }
 
     @GetMapping("/{id}")
     public CategoryResource show(@PathVariable UUID id) {
-        Category category = categoryService.findOne(id).orElseThrow(() -> new EntityNotFoundException("category not found"));
+        Category category = getInstance(id);
         return assembler.toResource(category);
     }
 
     @PostMapping
     private ResponseEntity<Category> create(@RequestBody Category category) {
-        Category result = this.categoryService.save(category);
+        Category result = this.service.save(category);
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest().path("/{id}")
                 .buildAndExpand(result.getId()).toUri();
@@ -73,20 +73,28 @@ public class CategoryController {
     public PagedResources<ProductResource> products(@PathVariable UUID id,
                                                     @PageableDefault(sort = {"id"}) Pageable pageable,
                                                     PagedResourcesAssembler<Product> assembler) {
-        Page<Product> products = this.productRepo.findByCategory_Id(id, pageable);
+        Category category = getInstance(id);
+        Page<Product> products = this.productRepo.findByCategory_Id(category.getId(), pageable);
         return assembler.toResource(products, this.productResourceAssembler);
     }
 
     @DeleteMapping("/{id}")
     private ResponseEntity<Category> destroy(@PathVariable UUID id) {
-        this.categoryService.delete(id);
+        Category category = getInstance(id);
+        this.service.delete(category.getId());
         return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/{id}")
     private Category update(@PathVariable UUID id, @RequestBody Category category) {
-        category.setId(id);
-        return this.categoryService.save(category);
+        Category entity = getInstance(id);
+        category.setId(entity.getId());
+        category.setCreatedAt(entity.getCreatedAt());
+        return this.service.save(category);
+    }
+
+    private Category getInstance(UUID id) {
+        return this.service.findOne(id).orElseThrow(() -> new EntityNotFoundException("category not found"));
     }
 
 }

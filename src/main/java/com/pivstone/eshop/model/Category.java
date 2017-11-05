@@ -14,7 +14,7 @@ import java.util.UUID;
  */
 @Data
 @Entity
-public class Category {
+public class Category extends AbstractTimestampModel {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
@@ -22,4 +22,5 @@ public class Category {
     @ManyToMany
     @JsonIgnore
     private Set<Product> product = new HashSet<>();
+
 }

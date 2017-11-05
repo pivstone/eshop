@@ -20,25 +20,30 @@ import java.util.UUID;
  */
 @Data
 @Entity
-public class Product {
+public class Product extends AbstractTimestampModel {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
+
     @NotNull
     @NotBlank(message = "name shouldn't be blank")
     private String name;
 
     @ManyToMany
     private Set<Category> category = new HashSet<>();
+
     @NotNull
-    @DecimalMin(value = "0", message = "should be positive")
+    @DecimalMin(value = "0.01", message = "should be positive")
     private BigDecimal price;
+
     @Transient
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Set<UUID> categoriesIdList = new HashSet<>();
+
     @JsonInclude
     @Transient
     private Currency currency = Currency.getInstance("EUR");
+
 
     public void setCurrency(String locate) {
         this.currency = Currency.getInstance(locate);
