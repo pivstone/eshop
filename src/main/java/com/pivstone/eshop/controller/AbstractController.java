@@ -1,6 +1,7 @@
 package com.pivstone.eshop.controller;
 
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pivstone.eshop.jpa.RestRepo;
 import com.pivstone.eshop.model.AbstractModel;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +17,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.persistence.EntityNotFoundException;
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.io.IOException;
 import java.net.URI;
 import java.util.UUID;
 
@@ -31,7 +34,10 @@ public abstract class AbstractController<E extends AbstractModel> {
     private ResourceAssemblerSupport<E, ? extends Resource<E>> assembler;
 
     @Autowired
-    private RestRepo<E> repository;
+    protected RestRepo<E> repository;
+
+    @Autowired
+    protected ObjectMapper objectMapper;
 
     @Autowired
     private PagedResourcesAssembler<E> pagedAssembler;
@@ -53,10 +59,7 @@ public abstract class AbstractController<E extends AbstractModel> {
     public ResponseEntity<E> create(@RequestBody E entity) {
         beforeCreate(entity);
         E result = this.repository.save(entity);
-        URI location = ServletUriComponentsBuilder
-                .fromCurrentRequest().path("/{id}")
-                .buildAndExpand(result.getId()).toUri();
-        return ResponseEntity.created(location).body(result);
+        return ResponseEntity.created(location(entity)).body(result);
     }
 
 
@@ -70,11 +73,36 @@ public abstract class AbstractController<E extends AbstractModel> {
 
     @PutMapping("/{id}")
     public Resource<E> update(@PathVariable UUID id, @Valid @RequestBody E entity) {
+        E instance = getInstance(id);
         entity.setId(id);
-        entity.setId(entity.getId());
-        entity.setCreatedAt(entity.getCreatedAt());
+        entity.setId(instance.getId());
+        entity.setCreatedAt(instance.getCreatedAt());
         beforeUpdate(entity);
         return assembler.toResource(this.repository.save(entity));
+    }
+
+    @PatchMapping("/{id}")
+    public Resource<E> patch(@PathVariable UUID id, HttpServletRequest request) throws IOException {
+        E entity = getInstance(id);
+        E updateEntity = objectMapper.readerForUpdating(entity).readValue(request.getReader());
+        updateEntity.setId(entity.getId());
+        updateEntity.setCreatedAt(entity.getCreatedAt());
+        return assembler.toResource(this.repository.save(updateEntity));
+    }
+
+    @RequestMapping(value = "/{id}", method = RequestMethod.HEAD)
+    public ResponseEntity head(@PathVariable UUID id) {
+        if (this.repository.existsById(id)) {
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    protected URI location(E entity) {
+        return ServletUriComponentsBuilder
+                .fromCurrentRequest().path("/{id}")
+                .buildAndExpand(entity.getId()).toUri();
     }
 
     protected void beforeUpdate(E entity) {
@@ -88,8 +116,11 @@ public abstract class AbstractController<E extends AbstractModel> {
     protected void beforeDestroy(E entity) {
     }
 
+    protected void beforePatch(E entity) {
+    }
+
 
     protected E getInstance(UUID id) {
-        return this.repository.findById(id).orElseThrow(EntityNotFoundException::new);
+        return this.repository.findById(id).orElseThrow(() -> new EntityNotFoundException("resource not found"));
     }
 }
