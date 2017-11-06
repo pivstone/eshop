@@ -1,15 +1,17 @@
 package com.pivstone.eshop.controller;
 
 import com.pivstone.eshop.jpa.CategoryRepo;
+import com.pivstone.eshop.jpa.ProductRepo;
 import com.pivstone.eshop.model.Category;
 import com.pivstone.eshop.model.Product;
 import com.pivstone.eshop.resource.ProductResource;
 import com.pivstone.eshop.utils.CurrencyUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.ExposesResourceFor;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
+import javax.persistence.EntityNotFoundException;
 import java.math.BigDecimal;
 import java.util.Currency;
 import java.util.Optional;
@@ -62,6 +64,45 @@ public class ProductController extends AbstractController<Product> {
         }
     }
 
+    @RequestMapping(value = "/{productId}/categories/{categoryId}", method = RequestMethod.HEAD)
+    public ResponseEntity<Product> checkCategory(@PathVariable UUID productId,
+                                                 @PathVariable UUID categoryId) {
+        if (((ProductRepo) this.repository).existsByIdAndCategory_Id(productId, categoryId)) {
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PutMapping("/{productId}/categories/{categoryId}")
+    public ResponseEntity<Product> addCategory(@PathVariable UUID productId,
+                                               @PathVariable UUID categoryId) {
+        Product product = getInstance(productId);
+        Category category = this.categoryRepo.findById(categoryId).orElseThrow(() -> new EntityNotFoundException("category not found"));
+        if (product.getCategory().contains(category)) {
+            return ResponseEntity.noContent().build();
+        } else {
+            product.getCategory().add(category);
+            this.repository.save(product);
+            return ResponseEntity.created(location(product)).body(product);
+        }
+
+    }
+
+    @DeleteMapping("/{productId}/categories/{categoryId}")
+    public ResponseEntity<Product> removeCategory(@PathVariable UUID productId,
+                                                  @PathVariable UUID categoryId) {
+        Product product = getInstance(productId);
+        Category category = this.categoryRepo.findById(categoryId).orElseThrow(() -> new EntityNotFoundException("category not found"));
+        if (product.getCategory().contains(category)) {
+            product.getCategory().remove(category);
+            this.repository.save(product);
+
+        }
+        return ResponseEntity.noContent().build();
+
+    }
+
     @Override
     protected void beforeCreate(Product product) {
         exchange(product);
@@ -72,5 +113,10 @@ public class ProductController extends AbstractController<Product> {
     protected void beforeUpdate(Product product) {
         exchange(product);
         setCategory(product);
+    }
+
+    @Override
+    protected void beforePatch(Product product) {
+        exchange(product);
     }
 }
