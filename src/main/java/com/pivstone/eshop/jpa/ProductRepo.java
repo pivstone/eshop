@@ -13,9 +13,10 @@ import java.util.UUID;
  * Created by pivstone on 2017/11/3.
  */
 @Repository
-public interface ProductRepo extends RestRepo<Product>  {
+public interface ProductRepo extends RestRepo<Product> {
     Collection<Product> findByCategory_Id(UUID id);
 
     Page<Product> findByCategory_Id(UUID categoryID, Pageable pageable);
 
+    boolean existsByIdAndCategory_Id(UUID productId, UUID categoryID);
 }

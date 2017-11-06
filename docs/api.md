@@ -176,6 +176,7 @@ sort|string|
 
 
 name|type|notes
+----|-----|-----
 name|string| required
 currency|string| default: EUR
 price|number|min: 0.01
@@ -235,6 +236,7 @@ categoriesIdList| Array| categoriest UUID array
 - Params:
 
 name|type|notes
+----|-----|-----
 name|string| required
 currency|string| default: EUR
 price|number|min: 0.01
@@ -284,6 +286,102 @@ categoriesIdList| Array| categoriest UUID array
 }
 ```
 
+
+##### Partial update a product
+
+- Path: /products/{productId}
+
+- Role: Admin
+
+- Method: PATCH
+
+- Params:
+
+name|type|notes
+----|-----|-----
+name|string| required
+currency|string| default: EUR
+price|number|min: 0.01
+
+
+- Request Example
+```json
+{
+    "name": "bike"
+}
+```
+
+- Response
+
+```json
+{
+    "createdAt": 1509883496809,
+    "updateAt": 1509885140376,
+    "id": "9ad3b35e-5f10-4e7b-98b7-89e046075368",
+    "name": "bike",
+    "category": [
+        {
+            "createdAt": 1509883496674,
+            "updateAt": 1509883496674,
+            "id": "b3532e06-6439-41e9-af6a-b8451f30b2c3",
+            "name": "fox"
+        }
+    ],
+    "price": 10.2,
+    "currency": "EUR",
+    "links": [
+        {
+            "rel": "self",
+            "href": "http://localhost:8080/products/9ad3b35e-5f10-4e7b-98b7-89e046075368"
+        },
+        {
+            "rel": "list",
+            "href": "http://localhost:8080/products/"
+        }
+    ]
+}
+```
+
+##### Add a category into a product
+
+- Path: /products/{productId}/categories/{categoryId}
+
+- Role: Admin
+
+- Method: PUT
+
+- Response: 204 (the category already in the product's category list)
+
+- Response: 201 (a new adding)
+
+
+##### Remove a category from a product
+
+- Path: /products/{productId}/categories/{categoryId}
+
+- Role: Admin
+
+- Method: DELETE
+
+- Response: 204
+
+- Response: 404 (the category not in product's category list
+
+
+##### Check exists in a product
+
+- Path: /products/{productId}/categories/{categoryId}
+
+- Role: Admin
+
+- Method: HEAD
+
+- Response: 204 exists
+
+- Response: 404 not found
+
+
+
 ##### Delete a product
 
 - Path: /products/{productId}
@@ -296,7 +394,17 @@ categoriesIdList| Array| categoriest UUID array
 
 - Reponse: 204
 
+##### Check a product exists?
 
+- Path: /products/{productId}
+
+- Role: Admin
+
+- Method: HEAD
+
+- Params: None
+
+- Reponse: 204
 
 #### Category
 
@@ -491,6 +599,20 @@ name|string|required
 - Role: Admin
 
 - Method: DELETE
+
+- Params: None
+
+- Reponse: 204
+
+
+
+##### Check a category exists
+
+- Path: /categoris/{categoryId}
+
+- Role: Admin
+
+- Method: HEAD
 
 - Params: None
 

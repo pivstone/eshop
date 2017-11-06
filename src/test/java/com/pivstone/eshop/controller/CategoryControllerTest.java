@@ -19,10 +19,9 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.UUID;
 
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertFalse;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -71,7 +70,7 @@ public class CategoryControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(contentType))
                 .andExpect(jsonPath("$.id", is(this.color.getId().toString())))
-                .andExpect(jsonPath("$.createdAt",notNullValue()))
+                .andExpect(jsonPath("$.createdAt", notNullValue()))
                 .andExpect(jsonPath("$.name", is(this.color.getName())));
 
     }
@@ -90,7 +89,7 @@ public class CategoryControllerTest {
     }
 
     @Test
-    @WithMockUser(username="admin",roles={"USER","ADMIN"})
+    @WithMockUser(username = "admin", roles = {"USER", "ADMIN"})
     public void testCreateCategory() throws Exception {
         Category category = new Category();
         category.setName("test");
@@ -104,7 +103,7 @@ public class CategoryControllerTest {
     }
 
     @Test
-    @WithMockUser(username="admin",roles={"USER","ADMIN"})
+    @WithMockUser(username = "admin", roles = {"USER", "ADMIN"})
     public void testDestroyCategory() throws Exception {
         Category category = new Category();
         category.setName("test2");
@@ -116,7 +115,7 @@ public class CategoryControllerTest {
     }
 
     @Test
-    @WithMockUser(username="admin",roles={"USER","ADMIN"})
+    @WithMockUser(username = "admin", roles = {"USER", "ADMIN"})
     public void testUpdateCategory() throws Exception {
         Category category = new Category();
         category.setName("test2");
@@ -132,6 +131,23 @@ public class CategoryControllerTest {
                 .andExpect(content().contentType(contentType))
                 .andExpect(jsonPath("$.createdAt", notNullValue()))
                 .andExpect(jsonPath("$.name", is(category.getName())));
+    }
+
+    @Test
+    public void testHeadCategory() throws Exception {
+        Category category = new Category();
+        category.setName("test2");
+
+        category = this.categoryRepo.save(category);
+        this.mvc.perform(head("/categories/" + category.getId() + "/")).
+                andExpect(status().isNoContent());
+    }
+
+    @Test
+    public void testHeadCategoryNotExists() throws Exception {
+
+        this.mvc.perform(head("/categories/" + UUID.randomUUID() + "/")).
+                andExpect(status().isNotFound());
     }
 
     protected String json(Object o) throws IOException {

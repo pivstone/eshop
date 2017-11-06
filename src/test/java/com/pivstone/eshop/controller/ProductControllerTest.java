@@ -21,10 +21,12 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.charset.Charset;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -136,6 +138,11 @@ public class ProductControllerTest {
                 .andExpect(content().contentType(contentType))
                 .andExpect(jsonPath("$.createdAt", notNullValue()))
                 .andExpect(jsonPath("$.name", is(product.getName())));
+        this.mvc.perform(put("/products/" + UUID.randomUUID() + "/")
+                .contentType(contentType)
+                .content(productJson)
+                .with(csrf()))
+                .andExpect(status().isNotFound());
     }
 
     @SuppressWarnings("unchecked")
@@ -165,6 +172,121 @@ public class ProductControllerTest {
                 .andExpect(jsonPath("$.name", is(product.getName())))
                 .andExpect(jsonPath("$.category[0].id", is(category.getId().toString())));
 
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    @WithMockUser(username = "admin", roles = {"USER", "ADMIN"})
+    public void testPartialUpdateProduct() throws Exception {
+        Category category = new Category();
+        category.setName("test");
+        category = this.categoryRepo.save(category);
+        Product product = new Product();
+        product.setName("test2");
+        product.setPrice(new BigDecimal(12));
+        product.getCategory().add(category);
+        product.getCategoriesIdList().add(category.getId());
+        this.productRepo.save(product);
+        assertEquals("test2", product.getName());
+        Map data = new HashMap<>();
+        // CategoriesIdList exclude at the json
+        // so need add it into json string manually
+        data.put("name", "test3");
+        String productJson = json(data);
+        this.mvc.perform(patch("/products/" + product.getId())
+                .contentType(contentType)
+                .content(productJson)
+                .with(csrf()))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(contentType))
+                .andExpect(jsonPath("$.name", is("test3")))
+                .andExpect(jsonPath("$.price", is(product.getPrice().intValue())))
+                .andExpect(jsonPath("$.category[0].id", is(category.getId().toString())));
+
+    }
+
+
+    @Test
+    public void testHeadProduct() throws Exception {
+        Product product = new Product();
+        product.setName("test2");
+        product.setPrice(new BigDecimal(12));
+
+        product = this.productRepo.save(product);
+        this.mvc.perform(head("/products/" + product.getId() + "/")).
+                andExpect(status().isNoContent());
+    }
+
+    @Test
+    public void testHeadProductNotExists() throws Exception {
+        this.mvc.perform(head("/products/" + UUID.randomUUID() + "/")).
+                andExpect(status().isNotFound());
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = {"USER", "ADMIN"})
+    public void addCategoryIntoProduct() throws Exception {
+        Product product = new Product();
+        product.setName("test2");
+        product.setPrice(new BigDecimal(12));
+
+        product = this.productRepo.save(product);
+
+        Category category = new Category();
+        category.setName("test");
+        category = this.categoryRepo.save(category);
+
+        this.mvc.perform(put("/products/" + product.getId() + "/categories/" + category.getId()))
+                .andExpect(status().isCreated());
+
+        assertTrue(this.productRepo.existsByIdAndCategory_Id(product.getId(), category.getId()));
+
+        this.mvc.perform(put("/products/" + product.getId() + "/categories/" + UUID.randomUUID()))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = {"USER", "ADMIN"})
+    public void checkCategoryAtProduct() throws Exception {
+        Product product = new Product();
+        product.setName("test2");
+        product.setPrice(new BigDecimal(12));
+
+
+        Category category = new Category();
+        category.setName("test");
+        category = this.categoryRepo.save(category);
+        product.getCategory().add(category);
+        product = this.productRepo.save(product);
+
+
+        this.mvc.perform(head("/products/" + product.getId() + "/categories/" + category.getId()))
+                .andExpect(status().isNoContent());
+
+        assertTrue(this.productRepo.existsByIdAndCategory_Id(product.getId(), category.getId()));
+        this.mvc.perform(head("/products/" + product.getId() + "/categories/" + UUID.randomUUID()))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = {"USER", "ADMIN"})
+    public void removeCategoryFromProduct() throws Exception {
+        Product product = new Product();
+        product.setName("test2");
+        product.setPrice(new BigDecimal(12));
+
+
+        Category category = new Category();
+        category.setName("test");
+        category = this.categoryRepo.save(category);
+        product.getCategory().add(category);
+        product = this.productRepo.save(product);
+        assertTrue(this.productRepo.existsByIdAndCategory_Id(product.getId(), category.getId()));
+
+        this.mvc.perform(delete("/products/" + product.getId() + "/categories/" + category.getId()))
+                .andExpect(status().isNoContent());
+
+        assertFalse(this.productRepo.existsByIdAndCategory_Id(product.getId(), category.getId()));
     }
 
     protected String json(Object o) throws IOException {

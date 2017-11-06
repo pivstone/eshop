@@ -16,5 +16,6 @@ public interface RestRepo<E>  extends PagingAndSortingRepository<E, UUID> {
     Optional<E> findById(UUID id);
 
     boolean existsByName(String name);
+    boolean existsById(UUID id);
 
 }
