@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -13,22 +14,19 @@ import java.math.BigDecimal;
 import java.util.Currency;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Mail: pivstone@gmail.com <br>
  * Created by pivstone on 2017/11/3.
  * Exchange rates come from fixer.io
- *
- *
  */
 @Component
 @Slf4j
 public class CurrencyUtils {
     private OkHttpClient client = new OkHttpClient();
     private Map<String, Double> rates;
+    private String url = "http://api.fixer.io/latest";
+    private ObjectMapper mapper = new ObjectMapper();
 
     public BigDecimal exchange(Currency target, BigDecimal money) {
         double rate = this.rates.get(target.getCurrencyCode());
@@ -37,23 +35,28 @@ public class CurrencyUtils {
 
     @PostConstruct
     public void init() {
-        this.rates = fetchRates();
-        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-        final Runnable runnable = () -> {
-            this.rates = fetchRates();
-        };
-        //schedule update the rates
-        scheduler.scheduleAtFixedRate(runnable, 0, 120, TimeUnit.SECONDS);
+        update();
+    }
 
+    /**
+     * for unit test inject
+     *
+     * @param url MockerWebServer URL
+     */
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    @Scheduled(fixedRate = 1000 * 60 * 5)
+    public void update() {
+        this.rates = fetchRates();
     }
 
     private Map<String, Double> fetchRates() {
         Map<String, Double> rates = new HashMap<>();
-        String url = "http://api.fixer.io/latest";
         Request request = new Request.Builder()
-                .url(url)
+                .url(this.url)
                 .build();
-        ObjectMapper mapper = new ObjectMapper();
         try (Response response = client.newCall(request).execute()) {
             if (response.code() == 200) {
                 String json = response.body().string();
