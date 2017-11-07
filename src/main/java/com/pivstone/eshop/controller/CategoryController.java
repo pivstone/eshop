@@ -35,7 +35,14 @@ public class CategoryController extends AbstractController<Category> {
     @Autowired
     private ProductResourceAssembler productResourceAssembler;
 
-
+    /**
+     * List of all products have this category
+     *
+     * @param id        Category Id
+     * @param pageable  Page parameters
+     * @param assembler PagedResourcesAssembler
+     * @return Paged products
+     */
     @GetMapping("/{id}/products")
     public PagedResources<ProductResource> products(@PathVariable UUID id,
                                                     @PageableDefault(sort = {"id"}) Pageable pageable,

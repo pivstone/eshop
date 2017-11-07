@@ -47,6 +47,9 @@ public class CurrencyUtils {
         this.url = url;
     }
 
+    /**
+     * Update the exchange rates
+     */
     @Scheduled(fixedRate = 1000 * 60 * 5)
     public void update() {
         this.rates = fetchRates();

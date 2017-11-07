@@ -3,6 +3,7 @@ package com.pivstone.eshop.model;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.hibernate.validator.constraints.NotBlank;
 
 import javax.persistence.Entity;
@@ -20,6 +21,7 @@ import java.util.UUID;
  * Mail: pivstone@gmail.com <br>
  * Created by pivstone on 2017/11/3.
  */
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Entity
 public class Product extends AbstractModel {

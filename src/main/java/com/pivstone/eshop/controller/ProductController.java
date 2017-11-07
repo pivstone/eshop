@@ -38,9 +38,9 @@ public class ProductController extends AbstractController<Product> {
 
 
     /**
-     * currency exchnge currency
+     * currency exchange currency
      *
-     * @param product
+     * @param product the product need to exchange
      */
     private void exchange(Product product) {
         if (!product.getCurrency().getCurrencyCode().equals(CURRENCY.getCurrencyCode())) {
@@ -53,7 +53,7 @@ public class ProductController extends AbstractController<Product> {
     /**
      * set category from categories id list
      *
-     * @param product
+     * @param product the product
      */
     private void setCategory(Product product) {
         for (UUID categoryId : product.getCategoriesIdList()) {
@@ -64,6 +64,13 @@ public class ProductController extends AbstractController<Product> {
         }
     }
 
+    /**
+     * check a product contains the category
+     *
+     * @param productId  Product ID
+     * @param categoryId Category Id
+     * @return If the product contains the category will return 204 else return 404
+     */
     @RequestMapping(value = "/{productId}/categories/{categoryId}", method = RequestMethod.HEAD)
     public ResponseEntity<Product> checkCategory(@PathVariable UUID productId,
                                                  @PathVariable UUID categoryId) {
@@ -74,6 +81,15 @@ public class ProductController extends AbstractController<Product> {
         }
     }
 
+    /**
+     * Add a category into the product
+     *
+     * @param productId  Product ID
+     * @param categoryId Category ID
+     * @return If product doesn't contain the category
+     * will add the category into the product's categories and return 201
+     * else return 204
+     */
     @PutMapping("/{productId}/categories/{categoryId}")
     public ResponseEntity<Product> addCategory(@PathVariable UUID productId,
                                                @PathVariable UUID categoryId) {
@@ -89,6 +105,13 @@ public class ProductController extends AbstractController<Product> {
 
     }
 
+    /**
+     * Remove a category from a product's category list
+     * @param productId Product ID
+     * @param categoryId Category ID
+     * @return If category not in category list will return 404
+     * else remove the category from the list and return 204
+     */
     @DeleteMapping("/{productId}/categories/{categoryId}")
     public ResponseEntity<Product> removeCategory(@PathVariable UUID productId,
                                                   @PathVariable UUID categoryId) {
