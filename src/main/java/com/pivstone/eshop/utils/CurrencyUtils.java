@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -14,6 +15,7 @@ import java.math.BigDecimal;
 import java.util.Currency;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Mail: pivstone@gmail.com <br>
@@ -62,10 +64,13 @@ public class CurrencyUtils {
                 .build();
         try (Response response = client.newCall(request).execute()) {
             if (response.code() == 200) {
-                String json = response.body().string();
-                log.info(json);
-                Fixer data = mapper.readValue(json, Fixer.class);
-                rates = data.getRates();
+                Optional<ResponseBody> optional = Optional.ofNullable(response.body());
+                if (optional.isPresent()) {
+                    String json = optional.get().string();
+                    log.info(json);
+                    Fixer data = mapper.readValue(json, Fixer.class);
+                    rates = data.getRates();
+                }
             } else {
                 log.error("Update exchange rate from fiex failed:{}", response.code());
             }
